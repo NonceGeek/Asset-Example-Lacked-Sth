@@ -1,5 +1,15 @@
 # AssetExampleLackedSth
 
-Asset 例子，Asset合约与 asset-app 中均缺少部分内容，待补全。
+Asset 例子，主分支上 Asset 合约与 asset-app 中均缺少部分内容，待补全。
+
+已补全内容见 `finished` 分支。
+
+# 运行环境
+
+* **fisco bcos:** 2.7.2
+* **gradle:**  6.8.3
+* **java:** java8(jdk1.8) - 12.0.2
+
+
 
 课程用。
