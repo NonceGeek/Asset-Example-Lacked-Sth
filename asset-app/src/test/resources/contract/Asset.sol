@@ -1,30 +1,30 @@
-pragma solidity ^0.4.24;
+pragma solidity >=0.4.24 <0.6.11;
 
 import "./Table.sol";
 
 contract Asset {
     // event
-    event RegisterEvent(int256 ret, string account, uint256 asset_value);
-    event TransferEvent(int256 ret, string from_account, string to_account, uint256 amount);
-
+    event RegisterEvent(int256 ret, string indexed account, uint256 indexed asset_value);
+    event TransferEvent(int256 ret, string indexed from_account, string indexed to_account, uint256 indexed amount);
+    
     constructor() public {
         // 构造函数中创建t_asset表
         createTable();
     }
 
     function createTable() private {
-        TableFactory tf = TableFactory(0x1001);
+        TableFactory tf = TableFactory(0x1001); 
         // 资产管理表, key : account, field : asset_value
         // |  资产账户(主键)      |     资产金额       |
         // |-------------------- |-------------------|
-        // |        account      |    asset_value    |
+        // |        account      |    asset_value    |     
         // |---------------------|-------------------|
         //
         // 创建表
         tf.createTable("t_asset", "account", "asset_value");
     }
 
-    function openTable() private returns(Table) {
+    function openTable() internal returns(Table) {
         TableFactory tf = TableFactory(0x1001);
         Table table = tf.openTable("t_asset");
         return table;
@@ -32,16 +32,17 @@ contract Asset {
 
     /*
     描述 : 根据资产账户查询资产金额
-    参数 ：
+    参数 ： 
             account : 资产账户
 
     返回值：
             参数一： 成功返回0, 账户不存在返回-1
             参数二： 第一个参数为0时有效，资产金额
     */
-    function select(string account) public constant returns(int256, uint256) {
+    function select(string memory account) public view returns(int256, uint256) {
         // 打开表
-        Table table = openTable();
+        TableFactory tf = TableFactory(0x1001);
+        Table table = tf.openTable("t_asset");
         // 查询
         Entries entries = table.select(account, table.newCondition());
         uint256 asset_value = 0;
@@ -55,7 +56,7 @@ contract Asset {
 
     /*
     描述 : 资产注册
-    参数 ：
+    参数 ： 
             account : 资产账户
             amount  : 资产金额
     返回值：
@@ -63,15 +64,15 @@ contract Asset {
             -1 资产账户已存在
             -2 其他错误
     */
-    function register(string account, uint256 asset_value) public returns(int256){
+    function register(string memory account, uint256 asset_value) public returns(int256){
         int256 ret_code = 0;
         int256 ret= 0;
         uint256 temp_asset_value = 0;
-        // 查询账户是否存在
+        // 查询账号是否存在
         (ret, temp_asset_value) = select(account);
         if(ret != 0) {
             Table table = openTable();
-
+            
             Entry entry = table.newEntry();
             entry.set("account", account);
             entry.set("asset_value", int256(asset_value));
@@ -96,7 +97,7 @@ contract Asset {
 
     /*
     描述 : 资产转移
-    参数 ：
+    参数 ： 
             from_account : 转移资产账户
             to_account ： 接收资产账户
             amount ： 转移金额
@@ -108,13 +109,13 @@ contract Asset {
             -4 金额溢出
             -5 其他错误
     */
-    function transfer(string from_account, string to_account, uint256 amount) public returns(int256) {
+    function transfer(string memory from_account, string memory to_account, uint256 amount) public returns(int256) {
         // 查询转移资产账户信息
         int ret_code = 0;
         int256 ret = 0;
         uint256 from_asset_value = 0;
         uint256 to_asset_value = 0;
-
+        
         // 转移账户是否存在?
         (ret, from_asset_value) = select(from_account);
         if(ret != 0) {
@@ -139,7 +140,7 @@ contract Asset {
             // 转移资产的账户金额不足
             emit TransferEvent(ret_code, from_account, to_account, amount);
             return ret_code;
-        }
+        } 
 
         if (to_asset_value + amount < to_asset_value) {
             ret_code = -4;

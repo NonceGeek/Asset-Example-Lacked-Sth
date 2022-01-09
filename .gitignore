@@ -1,6 +1,6 @@
 .gradle
-/build/
-/asset-app/dist/
+/asset-app/build/*
+/asset-app/dist/*
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -9,8 +9,8 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-.crt
-.key
-.publickey
+*.crt
+*.key
+*.publickey
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
